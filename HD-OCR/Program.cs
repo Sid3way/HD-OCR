@@ -28,8 +28,6 @@ int GetXPFromImage(string s, string xpValuePath1)
                     return 0;
                 var xpAmount = Convert.ToInt32(xpAmountString.Replace(",", ""));
                 return xpAmount;
-                Console.WriteLine($"XP ammount: {xpAmount}");
-                Console.WriteLine("Confidence: " + page.GetMeanConfidence());
             }
         }
     }
@@ -38,8 +36,8 @@ int GetXPFromImage(string s, string xpValuePath1)
 void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
 {
     // Load the source and template images
-    Image<Bgr, byte> mainImage = new Image<Bgr, byte>(sourceImagePath);
-    Image<Bgr, byte> iconImage = new Image<Bgr, byte>(templateImagePath);
+    Image<Bgr, byte> mainImage = new (sourceImagePath);
+    Image<Bgr, byte> iconImage = new (templateImagePath);
 
     // Convert images to grayscale
     Image<Gray, byte> grayMain = mainImage.Convert<Gray, byte>();
@@ -49,13 +47,13 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
     var sift = new SIFT();
 
     // Detect keypoints and compute descriptors for the icon (template)
-    VectorOfKeyPoint keypointsIcon = new VectorOfKeyPoint();
-    Mat descriptorsIcon = new Mat();
+    var keypointsIcon = new VectorOfKeyPoint();
+    var descriptorsIcon = new Mat();
     sift.DetectAndCompute(grayIcon, null, keypointsIcon, descriptorsIcon, false);
 
     // Detect keypoints and compute descriptors for the main image
-    VectorOfKeyPoint keypointsMain = new VectorOfKeyPoint();
-    Mat descriptorsMain = new Mat();
+    var keypointsMain = new VectorOfKeyPoint();
+    var descriptorsMain = new Mat();
     sift.DetectAndCompute(grayMain, null, keypointsMain, descriptorsMain, false);
 
     // FLANN matcher expects descriptors to be of type CV_32F
@@ -78,8 +76,8 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
     matcher.KnnMatch(descriptorsMain, knnMatches, k: 2, null);
 
     // Filter matches using Lowe's ratio test
-    List<MDMatch> goodMatches = new List<MDMatch>();
-    for (int i = 0; i < knnMatches.Size; i++)
+    List<MDMatch> goodMatches = [];
+    for (var i = 0; i < knnMatches.Size; i++)
     {
         if (knnMatches[i].Size >= 2)
         {
@@ -100,7 +98,7 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
 
         // Note: For each match, the train index refers to the icon (template)
         // and the query index refers to the main image.
-        for (int i = 0; i < goodMatches.Count; i++)
+        for (var i = 0; i < goodMatches.Count; i++)
         {
             iconPoints[i] = keypointsIcon[goodMatches[i].TrainIdx].Point;
             mainPoints[i] = keypointsMain[goodMatches[i].QueryIdx].Point;
@@ -112,28 +110,21 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
         if (!homography.IsEmpty)
         {
             // Define the corners of the icon (template)
-            PointF[] iconCorners = new PointF[]
-            {
-                new PointF(0, 0),
-                new PointF(iconImage.Width, 0),
-                new PointF(iconImage.Width, iconImage.Height),
-                new PointF(0, iconImage.Height)
-            };
+            PointF[] iconCorners =
+            [
+                new (0, 0),
+                new (iconImage.Width, 0),
+                new (iconImage.Width, iconImage.Height),
+                new (0, iconImage.Height)
+            ];
 
             // Transform the icon corners to the main image perspective
             PointF[] transformedCorners = CvInvoke.PerspectiveTransform(iconCorners, homography);
 
-            // // Draw the detected region (polygon) on the main image
-            // for (int i = 0; i < 4; i++)
-            // {
-            //     CvInvoke.Line(mainImage, Point.Round(transformedCorners[i]),
-            //         Point.Round(transformedCorners[(i + 1) % 4]), new Bgr(Color.Red).MCvScalar, 2);
-            // }
-
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
+            var minX = float.MaxValue;
+            var minY = float.MaxValue;
+            var maxX = float.MinValue;
+            var maxY = float.MinValue;
 
             foreach (var pt in transformedCorners)
             {
@@ -148,10 +139,9 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
                 new Size((int)(maxX - minX), (int)(maxY - minY)));
 
             // Define a new rectangle that starts at the right edge of the icon.
-            // Here we use the same width and height as the icon, but you can adjust these as needed.
-            int newRectWidth = (int)(iconRect.Width * 3.5); // For example, same as the icon's width
-            int newRectHeight = (int)(iconRect.Height * 1.5); // For example, same as the icon's height
-
+            var newRectWidth = (int)(iconRect.Width * 3.5);
+            var newRectHeight = (int)(iconRect.Height * 1.5);
+            
             // The new rectangle's top-left corner is at (iconRect.Right, iconRect.Y)
             Rectangle rightSideRect = new Rectangle(iconRect.Right, iconRect.Y, newRectWidth, newRectHeight);
 
@@ -187,23 +177,23 @@ void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
 }
 
 // Path to the image you want to process
-string imagesPath = @"../../../Images/ToScan/";
+var imagesPath = @"../../../Images/ToScan/";
 
 // Path to the image you want to process
-string templatePath = @"../../../Images/Templates/XP_TIGHT.png";
+var templatePath = @"../../../Images/Templates/XP_TIGHT.png";
 
 
 // Path to the image you want to process
-string xpValuePath = @"../../../Images/Temp/xp_value.png";
+var xpValuePath = @"../../../Images/Temp/xp_value.png";
 
 
 // Path to the tessdata folder where language files are stored
-string tessDataPath = @"../../../LLMData/";
+var tessDataPath = @"../../../LLMData/";
 
 var files = Directory.GetFiles(imagesPath).Where(f => f.EndsWith(".png"));
 var totalXp = 0;
 
-foreach (string imagePath in files)
+foreach (var imagePath in files)
 {
     FindIcon(imagePath, templatePath, false);
     totalXp += GetXPFromImage(tessDataPath, xpValuePath);
