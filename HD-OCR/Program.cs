@@ -9,7 +9,7 @@ using Emgu.CV.Features2D;
 using Emgu.CV.Flann;
 using Emgu.CV.Util;
 
-void GetXPFromImage(string s, string xpValuePath1)
+int GetXPFromImage(string s, string xpValuePath1)
 {
     using (var engine = new TesseractEngine(s, "eng", EngineMode.Default))
     {
@@ -23,14 +23,19 @@ void GetXPFromImage(string s, string xpValuePath1)
                 Console.WriteLine("Recognized Text: ");
                 var fullText = page.GetText();
                 Console.WriteLine(fullText);
-                Console.WriteLine($"XP ammount: {fullText.Split("/").First()}");
+                var xpAmountString = fullText.Split("/").FirstOrDefault();
+                if (xpAmountString == null)
+                    return 0;
+                var xpAmount = Convert.ToInt32(xpAmountString.Replace(",", ""));
+                return xpAmount;
+                Console.WriteLine($"XP ammount: {xpAmount}");
                 Console.WriteLine("Confidence: " + page.GetMeanConfidence());
             }
         }
     }
 }
 
-void FindIcon(string sourceImagePath, string templateImagePath)
+void FindIcon(string sourceImagePath, string templateImagePath, bool drawDebug)
 {
     // Load the source and template images
     Image<Bgr, byte> mainImage = new Image<Bgr, byte>(sourceImagePath);
@@ -156,16 +161,19 @@ void FindIcon(string sourceImagePath, string templateImagePath)
             // Save the cropped image to a new file
             croppedImage.Save(@"../../../Images/Temp/xp_value.png");
 
+
+            if (drawDebug)
+            {
+                // Draw both rectangles on the image for visualization.
+                CvInvoke.Rectangle(mainImage, iconRect, new Bgr(Color.Red).MCvScalar, 2); // Detected icon bounding box
+                CvInvoke.Rectangle(mainImage, rightSideRect, new Bgr(Color.Blue).MCvScalar,
+                    2); // Rectangle starting at the right side
             
-            // Draw both rectangles on the image for visualization.
-            CvInvoke.Rectangle(mainImage, iconRect, new Bgr(Color.Red).MCvScalar, 2); // Detected icon bounding box
-            CvInvoke.Rectangle(mainImage, rightSideRect, new Bgr(Color.Blue).MCvScalar,
-                2); // Rectangle starting at the right side
-            
-            // Display the result
-            CvInvoke.Imshow("Detected Icon", mainImage);
-            CvInvoke.WaitKey(0);
-            CvInvoke.DestroyAllWindows();
+                // Display the result
+                CvInvoke.Imshow("Detected Icon", mainImage);
+                CvInvoke.WaitKey(0);
+                CvInvoke.DestroyAllWindows();
+            }
         }
         else
         {
@@ -179,7 +187,7 @@ void FindIcon(string sourceImagePath, string templateImagePath)
 }
 
 // Path to the image you want to process
-string imagePath = @"../../../Images/ToScan/33333.png";
+string imagesPath = @"../../../Images/ToScan/";
 
 // Path to the image you want to process
 string templatePath = @"../../../Images/Templates/XP_TIGHT.png";
@@ -192,9 +200,13 @@ string xpValuePath = @"../../../Images/Temp/xp_value.png";
 // Path to the tessdata folder where language files are stored
 string tessDataPath = @"../../../LLMData/";
 
+var files = Directory.GetFiles(imagesPath).Where(f => f.EndsWith(".png"));
+var totalXp = 0;
 
+foreach (string imagePath in files)
+{
+    FindIcon(imagePath, templatePath, false);
+    totalXp += GetXPFromImage(tessDataPath, xpValuePath);
+}
 
-FindIcon(imagePath, templatePath);
-
-// Create an instance of the Tesseract engine
-GetXPFromImage(tessDataPath, xpValuePath);
+Console.WriteLine($"Total XP: {totalXp}");
