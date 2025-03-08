@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HD-OCR", "HD-OCR\HD-OCR.csproj", "{084F9BB4-DD15-41E0-922B-422392B7239F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IHCWargames.Api", "IHCWargames.Api\IHCWargames.Api.csproj", "{32E5F14F-21C3-416A-9020-AD3EF55CBBDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,9 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{084F9BB4-DD15-41E0-922B-422392B7239F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{084F9BB4-DD15-41E0-922B-422392B7239F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{084F9BB4-DD15-41E0-922B-422392B7239F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{084F9BB4-DD15-41E0-922B-422392B7239F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32E5F14F-21C3-416A-9020-AD3EF55CBBDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E5F14F-21C3-416A-9020-AD3EF55CBBDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E5F14F-21C3-416A-9020-AD3EF55CBBDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E5F14F-21C3-416A-9020-AD3EF55CBBDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
