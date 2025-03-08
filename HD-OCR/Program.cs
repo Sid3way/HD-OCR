@@ -13,7 +13,7 @@ var CVService = new ComputerVisionService();
 
 foreach (var imagePath in files)
 {
-    var xpAmmount = CVService.GetXpFromImage(imagePath, true);
+    var xpAmmount = CVService.GetXpFromImage(imagePath, Guid.NewGuid(), true);
     Console.WriteLine("Found XP: " + xpAmmount);
     totalXp += xpAmmount;
 }

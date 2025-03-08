@@ -19,13 +19,3 @@ public enum FleetEnum
     Basterd,
     Sentinel
 }
-
-public enum ArmadaEnum
-{
-    FightingFirst,
-    RedDaggers,
-    Ravagers,
-    Spartans
-}
-
-public record AddScoreCommand(string ImageUrl, string PlayerName, ArmadaEnum PlayerArmada, FleetEnum PlayerFleet);

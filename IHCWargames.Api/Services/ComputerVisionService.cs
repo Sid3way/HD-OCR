@@ -12,41 +12,42 @@ namespace IHCWargames.Api.Services;
 public class ComputerVisionService
 {
     private readonly string _templatePath;
-    private readonly string _xpValuePath;
     private readonly string _tessDataPath;
     private readonly Image<Gray, byte> _grayIcon;
 
     public ComputerVisionService()
     {
         // Path to the image you want to process
-        _templatePath = @"../../../../Images/Templates/XP_TIGHT.png";
-
-
-        // Path to the image you want to process
-        _xpValuePath = @"../../../../Images/Temp/";
-
+        _templatePath = @"../Images/Templates/XP_TIGHT.png";
 
         // Path to the tessdata folder where language files are stored
-        _tessDataPath = @"../../../../LLMData/";
+        _tessDataPath = @"../LLMData/";
+        
+        var tmp = Path.GetFullPath(_templatePath);
+        var tmp2 = Path.GetFullPath(".");
         
         Image<Bgr, byte> iconImage = new(_templatePath);
         _grayIcon = iconImage.Convert<Gray, byte>();
 
     }
     
-    public int GetXpFromImage(string imageFilePath, bool drawDebug = false)
+    public int GetXpFromImage(string imageFilePath, Guid operationUniqueId, bool drawDebug = false)
     {
-        var operationUniqueId = Guid.NewGuid();
         CreateCroppedImage(imageFilePath, operationUniqueId, drawDebug);
-        return ReadXPFromCroppedImage(operationUniqueId);
+        return ReadXPFromCroppedImage(GenerateCroppedPathFromImagePath(imageFilePath));
+    }
+
+    private static string GenerateCroppedPathFromImagePath(string imageFilePath)
+    {
+        return imageFilePath.Replace(".png", "_cropped.png");
     }
     
-    private int ReadXPFromCroppedImage(Guid croppedImageId)
+    private int ReadXPFromCroppedImage(string imageFilePath)
     {
         using (var engine = new TesseractEngine(_tessDataPath, "eng", EngineMode.Default))
         {
             // Load the image from the file
-            using (var img = Pix.LoadFromFile($"{_xpValuePath}{croppedImageId.ToString()}.png"))
+            using (var img = Pix.LoadFromFile(imageFilePath))
             {
                 // Perform OCR on the image and get the result
                 using (var page = engine.Process(img))
@@ -176,7 +177,7 @@ public class ComputerVisionService
                 Image<Bgr, byte> croppedImage = mainImage.Copy(rightSideRect);
 
                 // Save the cropped image to a new file
-                croppedImage.Save($"{_xpValuePath}{croppedImageId.ToString()}.png");
+                croppedImage.Save(GenerateCroppedPathFromImagePath(sourceImagePath));
 
 
                 if (drawDebug)
