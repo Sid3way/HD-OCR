@@ -34,7 +34,7 @@ public class ScoreService
         var imageBytes = await _httpClient.GetByteArrayAsync(command.ImageUrl);
         var imagePath = $"{_imagesPath}{requestId}.png";
         await File.WriteAllBytesAsync(imagePath, imageBytes);
-        var xpAmount = _computerVisionService.GetXpFromImage(imagePath, requestId, true);
+        var xpAmount = _computerVisionService.GetXpFromImage(imagePath, requestId);
         CleanupImages(requestId);
         if (xpAmount == 0)
             return false;
